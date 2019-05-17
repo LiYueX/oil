@@ -25,6 +25,14 @@
       text-align: center;
       /*display: none;  */
     }
+    #app{
+      width: 50%;
+      margin: 0 auto;
+    }
+    #app.mobile{
+      width: 100%;
+      margin: 0 auto;
+    }
     .demo-ruleForm{
       /*width: 50%;*/
       display: block;
@@ -181,6 +189,8 @@
       methods: {
         submitForm(formName) {
           var self = this
+          this.txt1=false
+          this.txt2=false
           this.$refs[formName].validate((valid) => {
             if (valid) {
               self.dialogVisible=true
@@ -193,6 +203,8 @@
           });
         },
         submitForm1(formName) {
+          this.txt1=false
+          this.txt2=false
           var self = this
           this.$refs[formName].validate((valid) => {
             if (valid) {
@@ -207,8 +219,6 @@
         },
         handleClose(done) {
           done();
-          this.txt1=false
-          this.txt2=false
         },
         resetForm() {
           this.ruleForm= {
