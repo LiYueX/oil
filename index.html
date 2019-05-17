@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>油耗花费计算器</title>    
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="油耗花费计算器,公里耗费计算,油耗计算" />
+  <meta name="keywords" content="油耗花费计算器" />
+  <meta name="author" content="liyuexi" />
+  <meta name="robots" content="index,follow" />
+  <meta name="apple-mobile-web-app-title" content="Zulong">
+  <meta name="format-detection" content="telphone=no" />
+  <meta name="format-detection" content="address=no" />
+  <meta name="format-detection" content="email=no" />
+  <meta name="renderer" content="webkit|ie-comp|ie-stand">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <style>
+    [v-cloak] {
+        display: none;
+    }
+    h2{
+      text-align: center;
+      /*display: none;  */
+    }
+    .demo-ruleForm{
+      /*width: 50%;*/
+      display: block;
+      margin: 0 auto;
+      overflow-y: hidden;
+    }
+    .demo-ruleForm .el-form-item{
+      text-align: center;
+    }
+    .demo-ruleForm  .conmit .el-form-item__content{
+      margin-left: 0 !important;
+    }
+    .el-dialog__wrapper .el-dialog__body {
+      padding: 30px 20px;
+      color: #079fe4;
+      font-weight: bold;
+      font-size: 20px;
+      word-break: break-all;
+      text-align: center;
+    }
+    .demo-ruleForm .el-form-item__label{
+      font-size: 12px;
+    }
+    .mobile .el-dialog{
+      width: 90% !important;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+  <div id="app" v-cloak :class='{mobile:mobile}'>
+    <h2>油耗花费计算器</h2>
+    <el-tabs type="border-card">
+      <el-tab-pane>
+        <span slot="label"><i class="el-icon-grape"></i> 公里耗费计算</span>
+        <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="120px" class="demo-ruleForm">
+          <el-form-item label="跑的公里数(KM)" prop="km">
+            <el-input  v-model.number="ruleForm.km" placeholder='跑的公里数(KM)' autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="用的油量(L)" prop="l">
+            <el-input  v-model.number="ruleForm.l"  placeholder='用的油量(L)' autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="油的价格(元)" prop="price">
+            <el-input v-model.number="ruleForm.price" placeholder='油的价格(元)' ></el-input>
+          </el-form-item>
+          <el-form-item class='conmit'>
+            <el-button type="primary" @click="submitForm('ruleForm')">计算</el-button>
+            <el-button @click="resetForm('ruleForm')">重置</el-button>
+          </el-form-item>
+          <el-form-item class='conmit'>
+            <el-popover
+              ref="popover1"
+              placement="top"
+              title='名词解释'
+              width="200"
+              trigger="hover"
+              content="第一次加油至跳枪，将里程表清零。第二次加油也加至跳枪，先看里程表的里程数为“跑的公里数”，再看该次加油量为“用的油量”,最后看油的单价就是“油的价格”。">
+            </el-popover>
+            <i class="el-icon-info" v-popover:popover1>名词解释</i>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+      <el-tab-pane>
+        <span slot="label">
+            <i class="el-icon-grape"></i>
+            油耗计算
+        </span>
+        <el-form :model="ruleForm1" status-icon :rules="rules" ref="ruleForm1" label-width="120px" class="demo-ruleForm">
+          <el-form-item label="里程数(KM)" prop="km">
+            <el-input  v-model.number="ruleForm1.km" placeholder='里程数(KM)' autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="加油量(L)" prop="l">
+            <el-input  v-model.number="ruleForm1.l"  placeholder='加油量(L)' autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item class='conmit'>
+            <el-button type="primary" @click="submitForm1('ruleForm1')">计算</el-button>
+            <el-button @click="resetForm1()">重置</el-button>
+          </el-form-item>
+          <el-form-item class='conmit'>
+            <el-popover
+              ref="popover"
+              placement="top"
+              title='名词解释'
+              width="200"
+              trigger="hover"
+              content="第一次加油至跳枪，将里程表清零。第二次加油也加至跳枪，先看里程表的里程数为“里程数”，再看该次加油量为“加油量”。">
+            </el-popover>
+            <i class="el-icon-info" v-popover:popover>名词解释</i>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
+    </el-tabs>
+    <el-dialog
+      title="计算结果"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose">
+      <span v-show='txt1'>您的爱车每公里耗费{{price}}元</span>
+      <span v-show='txt2'>您的爱车每100KM耗费{{price}}L油</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
+</body>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    var checkNum = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('不能为空'));
+      }
+      setTimeout(() => {
+        if (!Number(value)) {
+          callback(new Error('请输入数字值'));
+        } else {
+         callback();
+        }
+      }, 500);
+    };
+    new Vue({
+      el: '#app',
+      data() {
+        return { 
+          visible: false ,
+          dialogVisible: false,
+          price:0,
+          mobile:false,
+          ruleForm: {
+            km: '100',
+            l: '10',
+            price: '7.5'
+          },
+          ruleForm1: {
+            km: '100',
+            l: '10',
+          },
+          txt1:false,
+          txt2:false,
+          rules: {
+            km: [
+              { required: true,validator: checkNum, trigger: 'blur' }
+            ],
+            l: [
+              { required: true,validator: checkNum, trigger: 'blur' }
+            ],
+            price: [
+              { required: true,validator: checkNum, trigger: 'blur' }
+            ]
+          }
+        }
+      },
+      methods: {
+        submitForm(formName) {
+          var self = this
+          this.$refs[formName].validate((valid) => {
+            if (valid) {
+              self.dialogVisible=true
+              this.txt1=true
+              this.price = (this.ruleForm.price * this.ruleForm.l / this.ruleForm.km).toFixed(2)
+            } else {
+              console.log('error submit!!');
+              return false;
+            }
+          });
+        },
+        submitForm1(formName) {
+          var self = this
+          this.$refs[formName].validate((valid) => {
+            if (valid) {
+              self.dialogVisible=true
+              this.txt2=true
+              this.price = (this.ruleForm1.l / (this.ruleForm1.km / 100)).toFixed(2)
+            } else {
+              console.log('error submit!!');
+              return false;
+            }
+          });
+        },
+        handleClose(done) {
+          done();
+        },
+        resetForm() {
+          this.ruleForm= {
+            km: '',
+            l: '',
+            price: ''
+          }
+        },
+        resetForm1() {
+          this.ruleForm1= {
+            km: '',
+            l: '',
+          }
+        },
+        isMobile(){
+          if(/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)){
+            this.mobile=true
+          }else{
+            this.mobile=false;
+          }
+        }
+      },
+      mounted() {
+        this.isMobile()
+      }
+    })
+  </script>
+
+</html>
